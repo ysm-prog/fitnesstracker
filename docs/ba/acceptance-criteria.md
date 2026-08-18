@@ -60,6 +60,21 @@
 | A client-supplied owner is ignored on creation | `LibraryAuthorizationTest` |
 | Every library route refuses an anonymous caller | `LibraryAuthorizationTest` |
 
+### Front end (Milestone 2)
+
+| Criterion | Verified by |
+| --- | --- |
+| A visitor can register and land on the dashboard | `e2e/walkthrough.spec.ts` |
+| The shared library renders with all 26 exercises | `e2e/walkthrough.spec.ts` |
+| Search narrows the library, and how a movement progresses is on the card | `e2e/walkthrough.spec.ts` |
+| A program can be created and prescriptions added, in order | `e2e/walkthrough.spec.ts` |
+| The API's own validation message reaches the screen | `e2e/walkthrough.spec.ts` |
+| Credentials travel cross-origin; the CSRF cookie is fetched for unsafe requests only and echoed url-decoded | `src/lib/__tests__/api.test.ts` |
+| The error envelope becomes a typed error with field messages; a 401 is distinguishable; a non-JSON body is refused | `src/lib/__tests__/api.test.ts` |
+| Client-side ranges mirror the Form Requests, including min ≤ max and form-string coercion | `src/lib/__tests__/schemas.test.ts` |
+
+18 front-end tests and 2 browser walkthroughs, run at a Pixel 7 viewport.
+
 Verified directly against the deployed PostgreSQL database: duplicate system
 name, inverted rep range, 21 sets, 901 seconds of rest, duplicate position,
 deleting a referenced exercise, unknown loading type, and an `anon` read — all

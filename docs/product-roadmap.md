@@ -15,7 +15,7 @@
 | 8 | Trends and plateau | Not started |
 | 9 | Readiness and progression | Not started |
 | 10 | Target lifecycle and manual override | Not started |
-| 11 | Training Analysis UI | Not started |
+| 11 | Training Analysis UI | Not started — the front-end shell, library, and program builder exist from Milestone 2 |
 | 12 | Security, testing, QA | Not started |
 | 13 | Staging and deployment | Not started |
 

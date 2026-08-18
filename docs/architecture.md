@@ -5,7 +5,8 @@ aspirational design. Anything not yet built is marked as such.
 
 ## Shape
 
-One deployable: a Laravel application serving a JSON API under `/api/v1`,
+Two deployables under one registrable domain: a Next.js front end on Vercel, and
+a Laravel application serving a JSON API under `/api/v1` on Laravel Cloud,
 backed by PostgreSQL hosted on Supabase.
 
 ```text
@@ -45,10 +46,34 @@ functions instead of through database fixtures.
 | `app/Support/` | Correlation IDs and the API error envelope |
 | `app/Providers/` | Rate limits, response conventions |
 
+## Front end
+
+| Path | Owns |
+| --- | --- |
+| `frontend/src/lib/api.ts` | The fetch client: credentials, the CSRF cookie, and turning the error envelope into a typed `ApiError` |
+| `frontend/src/lib/schemas.ts` | Zod mirrors of the Form Requests, for immediate feedback only |
+| `frontend/src/lib/auth.tsx` | Who is signed in, asked of the API rather than remembered |
+| `frontend/src/components/` | Shared controls, including the labelled `Field` |
+| `frontend/src/app/` | Sign-in, registration, dashboard, exercise library, program builder |
+
+Three decisions worth knowing:
+
+**There is no client-side "am I logged in" flag.** The session cookie is the only
+truth and it is not readable from JavaScript, so the answer comes from asking the
+API. A cached boolean would go stale the moment a session expired.
+
+**The CSRF cookie is fetched before unsafe requests only**, and shared by a
+single in-flight promise. Fetching it before every request would double the cost
+of loading any screen; fetching it per component would fire six identical
+requests on mount.
+
+**Client validation decides nothing.** Every rule in `schemas.ts` is enforced
+again server-side. A disagreement between the two is a bug in the front end.
+
 ## Not built yet
 
 `app/Domain/Coaching/` (the ten engines), workout execution, metrics, photos,
-records, targets, and the front end. The sequence and the reasoning are in
+records, and targets. The sequence and the reasoning are in
 `docs/ba/perplexity-review.md`.
 
 ## Cross-cutting decisions

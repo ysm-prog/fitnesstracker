@@ -21,8 +21,12 @@ be built for it before a real requirement arrives.
 
 ## Architecture
 
-One deployable. Laravel application, PostgreSQL on Supabase, private
+Two deployables under one domain. A Next.js front end on Vercel at the apex, a
+Laravel API on Laravel Cloud at `api.`, PostgreSQL on Supabase, and private
 S3-compatible object storage for progress photos.
+
+Both halves share a registrable domain deliberately: it is what keeps Sanctum's
+session cookie same-site. See `docs/deployment.md`.
 
 ```text
 HTTP route → Form Request → Controller → Policy → Application service
@@ -92,6 +96,21 @@ composer audit                   # dependency advisories
 python3 scripts/validate-framework.py   # .claude structure check that CI runs
 ```
 
+```bash
+cd frontend
+pnpm install
+pnpm dev                         # http://localhost:3000
+pnpm test                        # Vitest
+pnpm typecheck
+pnpm lint
+pnpm build
+pnpm e2e                         # Playwright, needs the API running
+```
+
+Locally, run the API on `localhost` rather than `127.0.0.1`. They are different
+sites to a browser, and a SameSite=Lax session cookie will not cross between
+them — sign-in fails with no error that says why.
+
 ## Deterministic coaching rules
 
 The full specification lives in `docs/deterministic-coaching-engine.md`. The
@@ -140,14 +159,16 @@ and proposes; the deterministic engine and the user decide.
 - Do not let a caller set `position` on a template exercise. The sequencer owns
   it; a self-assigned position is how orderings acquire gaps and duplicates.
 - Do not add nutrition tracking. It is documented future scope.
+- Do not set `CORS_ALLOWED_ORIGINS=*`. Browsers refuse to send credentials to a
+  wildcard origin, so it breaks authentication as well as being unsafe.
 - Do not run the constraint or concurrency suites on SQLite and call them passed.
 
 ## Current state
 
 Milestones 1 (authentication and users) and 2 (exercises and programs) are
-complete. Milestones 3–13 are outstanding; the plan and traceability matrix are
-in `docs/ba/perplexity-review.md`, and open decisions are in
-`docs/ba/open-questions.md`.
+complete, backend and front end. Milestones 3–13 are outstanding; the plan and
+traceability matrix are in `docs/ba/perplexity-review.md`, and open decisions
+are in `docs/ba/open-questions.md`.
 
-The front end has not been started. It is waiting on question B4 in
-`docs/ba/open-questions.md`, not on the backend.
+The front end covers sign-in, registration, the dashboard, the exercise library,
+and the program builder. Workout execution is Milestone 3.

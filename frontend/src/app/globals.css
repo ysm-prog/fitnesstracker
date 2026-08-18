@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/*
+ * Mobile-first, and literally so: this is used one-handed, in a gym, between
+ * sets. Targets are large, contrast is high, and nothing important is more
+ * than a thumb's reach from the bottom of the screen.
+ */
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root {
+  --ground: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --ink: #131820;
+  --ink-mid: #3d4655;
+  --ink-muted: #67707e;
+  --line: #dde2e9;
+  --accent: #1b57b8;
+  --accent-ink: #1b57b8;
+  --accent-contrast: #ffffff;
+  --ok: #1f7a4d;
+  --warn: #9a6b00;
+  --danger: #b5372a;
+  --danger-soft: #fae4e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #0d1117;
+    --surface: #151b23;
+    --surface-2: #1c232d;
+    --ink: #e7ecf3;
+    --ink-mid: #b9c2ce;
+    --ink-muted: #8b95a3;
+    --line: #29323e;
+    --accent: #2f6fd0;
+    --accent-ink: #83b0f7;
+    --accent-contrast: #ffffff;
+    --ok: #63c48f;
+    --warn: #e0ae4a;
+    --danger: #f08a7a;
+    --danger-soft: #2e1815;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Never smaller than 16px on an input: iOS zooms the whole page otherwise. */
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  font-size: max(16px, 1rem);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

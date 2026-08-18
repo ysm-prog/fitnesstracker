@@ -16,22 +16,22 @@ Answered: a new Supabase project, `fitnesstracker-syd`, PostgreSQL 17 in
 `ap-southeast-2`. Tests run on in-memory SQLite by default and against a
 `postgres:17` service container in CI.
 
-## Open
-
 **B3 — One deployable or two?**
-Assumed: one. Sanctum cookie authentication for a same-site first-party client,
-with bearer tokens available for a native client that names its device. If the
-front end is deployed separately from the API, cookie authentication becomes
-cross-site and the session configuration has to change. Decide before Milestone
-11.
+Answered: two, under one registrable domain. Next.js on Vercel at the apex, the
+Laravel API on Laravel Cloud at `api.`. Sharing a registrable domain keeps the
+session cookie same-site, so first-party cookie authentication is unchanged;
+bearer tokens remain available for a native client that names its device.
 
 **B4 — Repository layout and package manager for the front end.**
-Assumed: Laravel at the repository root, front end to be added under
-`frontend/`, package manager not yet chosen. **Now blocking.** Milestone 2's
-backend is complete and its user interface — the exercise library and program
-builder — cannot start until this is answered. My recommendation is Next.js
-under `frontend/` with pnpm, deployed behind the same origin as the API so
-Sanctum's cookie authentication stays same-site, which also answers B3.
+Answered: Laravel at the repository root, Next.js under `frontend/`, pnpm.
+
+## Open
+
+**B9 — The domain.**
+The deployment configuration uses `<domain>` placeholders. Real values are
+needed for `APP_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`,
+`SANCTUM_STATEFUL_DOMAINS`, `SESSION_DOMAIN`, and `NEXT_PUBLIC_API_URL` before
+either half can be deployed.
 
 **B5 — Production database password.**
 Supabase shows the database password once, at project creation, and does not

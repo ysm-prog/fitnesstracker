@@ -53,6 +53,22 @@ for each table; under this design that is the intended state, not a defect.
 
 See `docs/decisions/ADR-0004-postgrest-exposure.md`.
 
+## Cross-origin requests
+
+The front end and the API are separate deployments, so every request from the
+browser is cross-origin and carries credentials. Two rules follow:
+
+- `CORS_ALLOWED_ORIGINS` is an allowlist, never `*`. This is not only about
+  strictness: browsers refuse to send credentials to a wildcard origin, so `*`
+  breaks authentication as well as being unsafe.
+- Vercel preview deployments each get their own hostname and are matched by
+  pattern, not listed. `CORS_ALLOWED_ORIGIN_PATTERNS` should be empty in
+  production; point previews at a staging API instead.
+
+Putting both halves under one registrable domain keeps the session cookie
+same-site, which is what allows first-party cookie authentication rather than
+tokens in JavaScript-reachable storage.
+
 ## Error surface
 
 Every failure leaves through `App\Support\ApiError`. No SQL, stack trace,
@@ -77,4 +93,4 @@ These arrive with the milestone that needs them, and are tracked in
 - Private object storage and signed URLs for progress photos (Milestone 4).
 - CSV formula-injection neutralisation on export (Milestone 12).
 - The full IDOR matrix across the resources of Milestones 3–12.
-- CORS origin allowlist tightening at deployment (Milestone 13).
+- Rate limiting tuned against real traffic (Milestone 13).

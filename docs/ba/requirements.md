@@ -34,6 +34,13 @@ docblocks. An ID means the same thing everywhere.
 | `SEC-` | Security controls | 1–13 |
 | `DOC-` | Documentation | 1–12 |
 
+## Delivered at Milestone 2 (front end)
+
+`FE-003` exercise library and `FE-004` program management, plus the sign-in,
+registration, and dashboard shell the rest of the interface hangs from. The
+remaining `FE-` rows arrive with the milestones that give them something to
+show.
+
 ## Delivered at Milestone 2
 
 `EX-001` to `EX-009`, `PROG-001` to `PROG-007`, and the Milestone 2 portion of

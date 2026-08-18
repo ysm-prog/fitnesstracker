@@ -7,11 +7,18 @@ php artisan test                     # everything
 php artisan test --filter=LoginTest  # one class
 ./vendor/bin/pint --test             # formatting
 composer audit                       # dependency advisories
+
+cd frontend
+pnpm test        # Vitest
+pnpm typecheck
+pnpm lint
+pnpm e2e         # Playwright; both halves must be running
 ```
 
 ## Current state
 
-144 tests, 528 assertions, all passing against SQLite in memory.
+144 backend tests (528 assertions) against SQLite in memory, 18 front-end tests,
+and 2 browser walkthroughs. All passing.
 
 | Suite | Covers |
 | --- | --- |
@@ -22,6 +29,20 @@ composer audit                       # dependency advisories
 | `tests/Feature/Program/` | Programs, duplication, prescriptions, validation ranges, ordering |
 | `tests/Feature/Security/` | Policies, IDOR across every identifier-bearing route, anonymous access |
 | `tests/Feature/Api/` | Error envelope, correlation IDs, leak protection |
+| `frontend/src/lib/__tests__/` | The fetch client and the Zod schemas |
+| `frontend/e2e/` | Register → browse the library → build a program, and a rejected prescription, in a real browser at a phone viewport |
+
+## What the browser walkthrough is for
+
+Unit tests cannot show that CORS, the CSRF cookie, the session cookie surviving a
+cross-origin request, and the API contract all agree — every one of those is
+invisible until a real browser makes a real request to a real API. The
+walkthrough is the only test that exercises the seam between the two
+deployables, which is exactly where a split architecture fails.
+
+It needs both halves running, so it is not part of the CI job; run it locally
+before a release. `PLAYWRIGHT_CHROMIUM_PATH` points it at an existing Chromium
+where the machine already has one.
 
 ## Why SQLite is not enough
 

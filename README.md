@@ -10,14 +10,16 @@ and gyms can be added later without a rewrite.
 ## Status
 
 **Milestones 1 and 2 of 13 complete** — authentication and accounts; the
-exercise library and program builder. The coaching engine is specified in
+exercise library and program builder, backend and front end. The coaching engine is specified in
 `docs/deterministic-coaching-engine.md` and not yet built. Progress is tracked in
 `docs/product-roadmap.md`.
 
 ## Stack
 
-Laravel 13 on PHP 8.4, PostgreSQL 17 hosted on Supabase, Sanctum for
-authentication. A Next.js front end arrives at Milestone 2.
+Laravel 13 on PHP 8.4 with Sanctum, PostgreSQL 17 on Supabase, and a Next.js 16
+front end. In production the front end is on Vercel at the apex domain and the
+API on Laravel Cloud at `api.` — one registrable domain, so the session cookie
+stays same-site. See `docs/deployment.md`.
 
 ## Getting started
 
@@ -28,8 +30,19 @@ php artisan key:generate
 touch database/database.sqlite      # local development uses SQLite
 php artisan migrate
 php artisan db:seed                 # the shared exercise library
-php artisan serve
+php artisan serve --host=localhost   # localhost, not 127.0.0.1
 ```
+
+```bash
+cd frontend
+pnpm install
+cp .env.example .env.local
+pnpm dev                            # http://localhost:3000
+```
+
+Use `localhost` for both. To a browser `localhost` and `127.0.0.1` are different
+sites, and a SameSite=Lax session cookie is not sent across sites — so mixing
+them breaks sign-in with no error explaining why.
 
 For production, set the Supabase database credentials in `.env`. The password is
 shown once when the Supabase project is created — see `docs/deployment.md`.
@@ -37,13 +50,19 @@ shown once when the Supabase project is created — see `docs/deployment.md`.
 ## Checks
 
 ```bash
-php artisan test                        # 144 tests
+php artisan test                        # 144 backend tests
 ./vendor/bin/pint --test                # formatting
 composer audit                          # dependency advisories
 python3 scripts/validate-framework.py   # .claude structure
+
+cd frontend
+pnpm test                               # 18 front-end tests
+pnpm typecheck && pnpm lint && pnpm build
+pnpm e2e                                # 2 browser walkthroughs, API must be running
 ```
 
-All four run in CI on every push.
+All of these run in CI on every push except the browser walkthroughs, which need
+both halves up.
 
 ## Documentation
 
