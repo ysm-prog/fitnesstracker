@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | 0 | Audit and architecture | Complete — `docs/ba/perplexity-review.md` |
 | 1 | Authentication and users | **Complete** |
-| 2 | Exercises and programs | Not started |
+| 2 | Exercises and programs | **Complete** |
 | 3 | Reliable workout execution | Not started |
 | 4 | Metrics, check-ins, photos | Not started |
 | 5 | Progress and personal records | Not started |

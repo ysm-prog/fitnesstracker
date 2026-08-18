@@ -35,20 +35,21 @@ functions instead of through database fixtures.
 | Path | Owns |
 | --- | --- |
 | `app/Http/Controllers/Auth/` | Registration, sign-in, sign-out, password reset, email verification |
-| `app/Http/Controllers/` | Account and fitness profile |
+| `app/Http/Controllers/` | Account, fitness profile, exercises, programs, prescriptions |
 | `app/Http/Requests/` | All input validation |
 | `app/Http/Resources/` | Response shaping; nothing internal leaks |
 | `app/Policies/` | Ownership checks |
-| `app/Models/` | `User`, `FitnessProfile` |
-| `app/Enums/` | Training level, primary goal, weight unit, measurement unit |
+| `app/Models/` | `User`, `FitnessProfile`, `Exercise`, `WorkoutTemplate`, `TemplateExercise` |
+| `app/Services/` | `ProgramExerciseSequencer`, `ProgramDuplicator` |
+| `app/Enums/` | Training level, primary goal, units, loading type, muscle group, equipment |
 | `app/Support/` | Correlation IDs and the API error envelope |
 | `app/Providers/` | Rate limits, response conventions |
 
 ## Not built yet
 
-`app/Domain/Coaching/` (the ten engines), `app/Services/`, the exercise library,
-programs, workout execution, metrics, photos, records, targets, and the front
-end. The sequence and the reasoning are in `docs/ba/perplexity-review.md`.
+`app/Domain/Coaching/` (the ten engines), workout execution, metrics, photos,
+records, targets, and the front end. The sequence and the reasoning are in
+`docs/ba/perplexity-review.md`.
 
 ## Cross-cutting decisions
 
@@ -62,6 +63,18 @@ property of the system rather than a habit each handler has to remember.
 
 **Responses** name their own top-level keys (`user`, `fitness_profile`). Laravel's
 `data` wrapper is disabled, so clients walk one level fewer.
+
+**Ordering is owned by one class.** `position` on a template exercise is not
+fillable and is written only by `ProgramExerciseSequencer`. Reordering rewrites
+the whole sequence in two passes — every row is moved out of the way first —
+because assigning final positions one row at a time collides with the unique
+index the moment two exercises swap.
+
+**Refusals distinguish "not yours" from "not allowed".** A system exercise is
+not a secret, so editing one is a 403 with a reason. Another user's row is a
+secret, so every refusal there is a 404 — a 403 would confirm the identifier
+exists. Policies express this with `Response::deny()` and
+`Response::denyAsNotFound()` rather than the controller guessing.
 
 **Analysis will not share a transaction with completion** (Milestone 7). A
 completed workout must stay completed even when analysis fails, so completion

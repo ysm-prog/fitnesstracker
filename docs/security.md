@@ -19,9 +19,19 @@ single point of failure:
 3. Resources are reached through the authenticated user, so there is no
    identifier in the URL to tamper with in the first place.
 
-`tests/Feature/Security/AuthorizationTest.php` and the client-supplied-`user_id`
-test in `tests/Feature/Profile/FitnessProfileTest.php` fail if any of this is
-weakened.
+`tests/Feature/Security/AuthorizationTest.php`,
+`tests/Feature/Security/LibraryAuthorizationTest.php`, and the
+client-supplied-`user_id` tests fail if any of this is weakened. From Milestone 2
+the API takes identifiers in the URL, so the IDOR suite covers every one of
+those routes for read, write, and destroy.
+
+## Telling "not yours" from "not allowed"
+
+Refusals are deliberately not uniform. Another user's row is denied as **404**:
+a 403 would confirm the identifier belongs to something. A system exercise the
+caller can see but may not edit is a plain **403** with a reason, because its
+existence is not a secret and pretending otherwise is unhelpful. Policies say
+which with `Response::denyAsNotFound()` and `Response::deny()`.
 
 ## Supabase exposure
 
@@ -66,5 +76,5 @@ These arrive with the milestone that needs them, and are tracked in
 
 - Private object storage and signed URLs for progress photos (Milestone 4).
 - CSV formula-injection neutralisation on export (Milestone 12).
-- The full IDOR matrix across every user-owned resource (Milestones 2–12).
+- The full IDOR matrix across the resources of Milestones 3–12.
 - CORS origin allowlist tightening at deployment (Milestone 13).

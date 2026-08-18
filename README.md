@@ -9,8 +9,8 @@ and gyms can be added later without a rewrite.
 
 ## Status
 
-**Milestone 1 of 13 complete** — authentication, accounts, and the fitness
-profile. The coaching engine is specified in
+**Milestones 1 and 2 of 13 complete** — authentication and accounts; the
+exercise library and program builder. The coaching engine is specified in
 `docs/deterministic-coaching-engine.md` and not yet built. Progress is tracked in
 `docs/product-roadmap.md`.
 
@@ -27,6 +27,7 @@ cp .env.example .env
 php artisan key:generate
 touch database/database.sqlite      # local development uses SQLite
 php artisan migrate
+php artisan db:seed                 # the shared exercise library
 php artisan serve
 ```
 
@@ -36,7 +37,7 @@ shown once when the Supabase project is created — see `docs/deployment.md`.
 ## Checks
 
 ```bash
-php artisan test                        # 63 tests
+php artisan test                        # 144 tests
 ./vendor/bin/pint --test                # formatting
 composer audit                          # dependency advisories
 python3 scripts/validate-framework.py   # .claude structure

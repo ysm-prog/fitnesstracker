@@ -60,6 +60,39 @@ from `anon` and `authenticated`, plus default privileges revoked. Verified by
 connecting as `anon` and being denied. See
 `docs/decisions/ADR-0004-postgrest-exposure.md`.
 
+## Errors were mapped by exception class, and that silently failed
+
+A policy returning `Response::denyAsNotFound()` produced a 500 rather than a
+404. Laravel's handler converts several exception types before any renderable
+callback sees them — an `AuthorizationException` carrying a status becomes a
+plain `HttpException` with only that status — so a `match` on exception classes
+matched nothing and fell through to the default.
+
+**Decision:** map by HTTP status, not by class. `ApiError::fromStatus()` owns the
+status-to-code table. The class-based arms that remain are only the ones that
+carry extra data, such as validation errors.
+
+## Reordering a program one row at a time collides with its own unique index
+
+`(workout_template_id, position)` is unique, so assigning final positions
+sequentially fails the moment two exercises swap: the first update lands on a
+position the second still occupies.
+
+**Decision:** `ProgramExerciseSequencer::reorder()` moves every row out of the
+way first — a single update adding an offset past the highest position — and
+then assigns final positions. Both passes are in one transaction. The swap case
+has its own test, because it is the one a naive implementation passes on three
+items and fails on two.
+
+## A model default is not a column default
+
+A row created and returned in the same request read back with nulls where the
+database had defaults: `is_active`, `training_level`, and the rest exist in the
+schema but not on a model instance that has never been reloaded.
+
+**Decision:** mirror column defaults in the model's `$attributes`. The column
+default remains the backstop for anything that writes without the model.
+
 ## The framework validator scans dependency documentation
 
 `vendor/nette/*/AGENTS.md` reference their own `vendor/nette/utils/docs/internals.md`, which broke

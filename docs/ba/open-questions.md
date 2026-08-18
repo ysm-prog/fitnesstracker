@@ -27,7 +27,11 @@ cross-site and the session configuration has to change. Decide before Milestone
 
 **B4 — Repository layout and package manager for the front end.**
 Assumed: Laravel at the repository root, front end to be added under
-`frontend/`, package manager not yet chosen. Decide before Milestone 2.
+`frontend/`, package manager not yet chosen. **Now blocking.** Milestone 2's
+backend is complete and its user interface — the exercise library and program
+builder — cannot start until this is answered. My recommendation is Next.js
+under `frontend/` with pnpm, deployed behind the same origin as the API so
+Sanctum's cookie authentication stays same-site, which also answers B3.
 
 **B5 — Production database password.**
 Supabase shows the database password once, at project creation, and does not

@@ -137,12 +137,17 @@ and proposes; the deterministic engine and the user decide.
 - Do not skip, disable, or loosen a test to get a green run.
 - Do not claim a test, build, migration, or deployment passed without running it.
 - Do not trust a client-supplied ownership identifier, ever.
+- Do not let a caller set `position` on a template exercise. The sequencer owns
+  it; a self-assigned position is how orderings acquire gaps and duplicates.
 - Do not add nutrition tracking. It is documented future scope.
 - Do not run the constraint or concurrency suites on SQLite and call them passed.
 
 ## Current state
 
-Milestone 1 (authentication and users) is complete. Milestones 2–13 are
-outstanding; the plan and traceability matrix are in
-`docs/ba/perplexity-review.md`, and open decisions are in
+Milestones 1 (authentication and users) and 2 (exercises and programs) are
+complete. Milestones 3–13 are outstanding; the plan and traceability matrix are
+in `docs/ba/perplexity-review.md`, and open decisions are in
 `docs/ba/open-questions.md`.
+
+The front end has not been started. It is waiting on question B4 in
+`docs/ba/open-questions.md`, not on the backend.

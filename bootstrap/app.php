@@ -12,9 +12,6 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -41,49 +38,35 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return match (true) {
-                $e instanceof ValidationException => ApiError::response(
+            if ($e instanceof ValidationException) {
+                return ApiError::response(
                     ErrorCode::VALIDATION_FAILED,
                     'The submitted data is not valid.',
                     422,
                     $e->errors(),
-                ),
-                $e instanceof AuthenticationException => ApiError::response(
-                    ErrorCode::UNAUTHENTICATED,
-                    'Sign in to continue.',
-                    401,
-                ),
-                $e instanceof AuthorizationException => ApiError::response(
-                    ErrorCode::NOT_FOUND,
-                    'The requested resource does not exist.',
-                    404,
-                ),
-                $e instanceof ModelNotFoundException,
-                $e instanceof NotFoundHttpException => ApiError::response(
-                    ErrorCode::NOT_FOUND,
-                    'The requested resource does not exist.',
-                    404,
-                ),
-                $e instanceof MethodNotAllowedHttpException => ApiError::response(
-                    ErrorCode::METHOD_NOT_ALLOWED,
-                    'That method is not allowed for this endpoint.',
-                    405,
-                ),
-                $e instanceof TooManyRequestsHttpException => ApiError::response(
-                    ErrorCode::TOO_MANY_REQUESTS,
-                    'Too many attempts. Try again shortly.',
-                    429,
-                ),
-                $e instanceof HttpExceptionInterface && $e->getStatusCode() === 403 => ApiError::response(
-                    ErrorCode::FORBIDDEN,
-                    'You do not have access to that.',
-                    403,
-                ),
-                default => ApiError::response(
-                    ErrorCode::SERVER_ERROR,
-                    'Something went wrong on our side. The correlation ID identifies this request in our logs.',
-                    500,
-                ),
-            };
+                );
+            }
+
+            if ($e instanceof AuthenticationException) {
+                return ApiError::fromStatus(401);
+            }
+
+            // A policy may deny as not found, which Laravel turns into a plain
+            // HttpException carrying only a status. Read the status rather than
+            // matching on exception classes that will not all be present.
+            if ($e instanceof AuthorizationException) {
+                return ApiError::fromStatus($e->hasStatus() ? $e->status() : 403, $e->response()->message());
+            }
+
+            if ($e instanceof ModelNotFoundException) {
+                return ApiError::fromStatus(404);
+            }
+
+            if ($e instanceof HttpExceptionInterface) {
+                return ApiError::fromStatus($e->getStatusCode());
+            }
+
+            return ApiError::fromStatus(500);
         });
+
     })->create();

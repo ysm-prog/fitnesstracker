@@ -34,6 +34,15 @@ docblocks. An ID means the same thing everywhere.
 | `SEC-` | Security controls | 1–13 |
 | `DOC-` | Documentation | 1–12 |
 
+## Delivered at Milestone 2
+
+`EX-001` to `EX-009`, `PROG-001` to `PROG-007`, and the Milestone 2 portion of
+`API-001`, `API-005` to `API-007`, `SEC-005` to `SEC-007`, and `SEC-012`.
+
+`PROG-008` and `PROG-009` — editing a program never changing historical workout
+data, and the prescription snapshot — belong to Milestone 3. There is nothing to
+snapshot until workouts exist.
+
 ## Delivered at Milestone 1
 
 `AUTH-001` to `AUTH-008`, `PROFILE-001` to `PROFILE-011`, `API-008`, `API-009`,

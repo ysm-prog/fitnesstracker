@@ -9,6 +9,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -43,6 +44,18 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function fitnessProfile(): HasOne
     {
         return $this->hasOne(FitnessProfile::class);
+    }
+
+    /** @return HasMany<Exercise, $this> */
+    public function exercises(): HasMany
+    {
+        return $this->hasMany(Exercise::class);
+    }
+
+    /** @return HasMany<WorkoutTemplate, $this> */
+    public function workoutTemplates(): HasMany
+    {
+        return $this->hasMany(WorkoutTemplate::class);
     }
 
     /**

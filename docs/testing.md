@@ -11,14 +11,16 @@ composer audit                       # dependency advisories
 
 ## Current state
 
-63 tests, 226 assertions, all passing against SQLite in memory.
+144 tests, 528 assertions, all passing against SQLite in memory.
 
 | Suite | Covers |
 | --- | --- |
-| `tests/Unit/` | Correlation ID handling |
+| `tests/Unit/` | Correlation ID handling, loading-type semantics |
 | `tests/Feature/Auth/` | Registration, sign-in, sign-out, password reset, email verification |
 | `tests/Feature/Profile/` | Account, fitness profile, validation ranges, deletion |
-| `tests/Feature/Security/` | Policies, IDOR, anonymous access to every protected route |
+| `tests/Feature/Exercise/` | Library listing, search, filters, pagination, creation, validation, archive and restore, system immutability, seeder idempotency |
+| `tests/Feature/Program/` | Programs, duplication, prescriptions, validation ranges, ordering |
+| `tests/Feature/Security/` | Policies, IDOR across every identifier-bearing route, anonymous access |
 | `tests/Feature/Api/` | Error envelope, correlation IDs, leak protection |
 
 ## Why SQLite is not enough
@@ -34,9 +36,17 @@ authorization, and **not** fine for two things this system depends on:
 Check constraints are also PostgreSQL-only in these migrations, because SQLite
 cannot add constraints after table creation.
 
+It also has no `NULLS NOT DISTINCT`, so the rule keeping the system exercise
+library free of duplicate names exists only on PostgreSQL.
+
 CI therefore runs the suite twice: once on SQLite, once against a `postgres:17`
 service container. A constraint or concurrency test that has only run on SQLite
 has not been tested.
+
+Milestone 2's PostgreSQL-only constraints were additionally verified directly
+against the deployed database by attempting eight violations and confirming all
+eight were rejected. That is a check of the deployed schema, not a substitute
+for the CI PostgreSQL run.
 
 ## Conventions
 

@@ -26,9 +26,44 @@ supplies `device_name` at sign-in and receives a bearer token to send as
 | GET | `/api/v1/profile/fitness` | required | Fitness profile |
 | PUT | `/api/v1/profile/fitness` | required | Update the fitness profile |
 
-Planned for later milestones: exercises, programs, sessions, daily metrics,
-weekly check-ins, progress photos, personal records, targets, pain reports, and
-progress.
+## Exercise library (Milestone 2)
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/exercises` | The system library plus the caller's own. Paginated. Filters: `q`, `primary_muscle`, `equipment`, `include_archived`, `per_page` |
+| POST | `/api/v1/exercises` | Create a custom exercise |
+| GET | `/api/v1/exercises/{exercise}` | One exercise |
+| PATCH | `/api/v1/exercises/{exercise}` | Update a custom exercise |
+| DELETE | `/api/v1/exercises/{exercise}` | Delete if unused, archive if a program prescribes it. The response says which: `{"action": "deleted"}` or `{"action": "archived"}` |
+| POST | `/api/v1/exercises/{exercise}/restore` | Un-archive |
+
+System exercises have no owner. They are readable by everyone and writable by
+nobody: a write attempt is **403**, with a message saying to create a variation.
+
+## Programs (Milestone 2)
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/programs` | The caller's programs with their prescriptions, in position order |
+| POST | `/api/v1/programs` | Create a program |
+| GET | `/api/v1/programs/{program}` | One program |
+| PATCH | `/api/v1/programs/{program}` | Rename, re-describe, activate, or deactivate |
+| DELETE | `/api/v1/programs/{program}` | Archive. Programs are never destroyed; history refers to them |
+| POST | `/api/v1/programs/{program}/restore` | Un-archive |
+| POST | `/api/v1/programs/{program}/duplicate` | Copy the program and its prescriptions. The copy starts inactive |
+| POST | `/api/v1/programs/{program}/exercises` | Append a prescription; it takes the next position |
+| PATCH | `/api/v1/programs/{program}/exercises/{templateExercise}` | Edit a prescription, or replace its exercise in place |
+| DELETE | `/api/v1/programs/{program}/exercises/{templateExercise}` | Remove a prescription and close the gap |
+| PUT | `/api/v1/programs/{program}/exercises/reorder` | Rewrite the order. Takes `template_exercise_ids`: the complete sequence, each exactly once |
+
+Prescription validation, enforced in the Form Request and again as a PostgreSQL
+check constraint: sets 1–20, reps 1–100, minimum ≤ maximum, RIR 0–5, rest
+0–900 seconds. An exercise can only be prescribed if the caller can see it and
+it is not archived — `exists` alone would let someone prescribe another user's
+private exercise by guessing an identifier.
+
+Planned for later milestones: sessions, daily metrics, weekly check-ins,
+progress photos, personal records, targets, pain reports, and progress.
 
 ## Errors
 
@@ -57,7 +92,14 @@ present and is echoed in the `X-Correlation-Id` response header.
 | `server_error` | 500 |
 
 An authorization failure on a resource owned by someone else returns **404, not
-403**, so the API cannot be used to discover which records exist.
+403**, so the API cannot be used to discover which records exist. A refusal on
+something the caller *can* see but may not change — a system exercise — is a
+genuine **403** with a reason, because its existence is not a secret. Policies
+make the distinction with `Response::denyAsNotFound()` and `Response::deny()`.
+
+Errors are mapped by HTTP status rather than by exception class. Laravel
+collapses several exception types into a plain `HttpException` carrying only a
+status, so matching on classes silently missed cases and returned 500.
 
 ## Rate limits
 

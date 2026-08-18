@@ -21,6 +21,22 @@ migration wins and the difference is a bug to fix, not a choice.
 | `jobs`, `job_batches`, `failed_jobs` | Queue | `jobs_queue_index` |
 | `fitness_profiles` | One profile per user | `fitness_profiles_user_id_unique`, FK cascade, nine check constraints |
 
+## Tables at Milestone 2
+
+| Table | Purpose | Key constraints |
+| --- | --- | --- |
+| `exercises` | System and custom movements | `exercises_owner_name_unique` on `(user_id, lower(name)) NULLS NOT DISTINCT`; five check constraints |
+| `workout_templates` | Programs | `workout_templates_owner_name_unique` on `(user_id, lower(name))` |
+| `template_exercises` | Prescriptions within a program | `(workout_template_id, position)` unique; seven check constraints; `exercise_id` restricted on delete |
+
+A null `user_id` on `exercises` means a system exercise. `NULLS NOT DISTINCT`
+matters here: without it PostgreSQL treats each null owner as unique and the
+shared library could hold two rows called "Back Squat".
+
+`template_exercises.exercise_id` is **restricted**, not cascaded. Deleting an
+exercise a program prescribes would silently change the program, so exercises
+are archived instead — which is what the API does automatically.
+
 ## Conventions
 
 - Ownership is `user_id`, indexed, foreign key, `ON DELETE CASCADE`. Deleting an
@@ -34,8 +50,14 @@ migration wins and the difference is a bug to fix, not a choice.
 
 ## Check constraints are PostgreSQL-only
 
-SQLite cannot add constraints to an existing table, so the migration adds them
-only when the driver is `pgsql`. The test suite's default SQLite run therefore
+SQLite cannot add constraints to an existing table, so migrations add them only
+when the driver is `pgsql`. It also has no way to say `NULLS NOT DISTINCT`, so
+the system-library uniqueness rule exists only on PostgreSQL.
+
+These constraints were verified on the deployed database by attempting eight
+violations — a duplicate system name, an inverted rep range, 21 sets, 901
+seconds of rest, two prescriptions at one position, deleting a referenced
+exercise, an unknown loading type, and an `anon` read. All eight were rejected. The test suite's default SQLite run therefore
 exercises application-layer validation alone. This is why `docs/testing.md`
 requires a PostgreSQL run as well, and why the future concurrency suites cannot
 be considered passed on SQLite.
