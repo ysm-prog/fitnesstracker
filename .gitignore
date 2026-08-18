@@ -11,3 +11,33 @@ Thumbs.db
 # Incidental output
 *.log
 __pycache__/
+
+# --- Application (added Milestone 1) ---
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Dependencies
+/vendor/
+/node_modules/
+/frontend/node_modules/
+
+# Build output
+/public/build/
+/public/hot
+/public/storage
+/frontend/.next/
+/frontend/out/
+
+# Test and tooling artefacts
+/coverage/
+.phpunit.result.cache
+.phpunit.cache/
+/storage/*.key
+/storage/pail
+auth.json
+
+# Local development database
+/database/*.sqlite
+/database/*.sqlite-journal

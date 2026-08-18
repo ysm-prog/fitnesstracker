@@ -16,6 +16,10 @@ These are the invariants that have actually broken in practice:
    without an entry point.
 6. The YSM scaffold files referenced by the documentation exist together.
 
+Local divergence from the upstream framework: this repository is an application,
+not the framework itself, so dependency directories are excluded from the
+documented-path scan. See docs/decisions/ADR-0003-vendored-framework-validator.md.
+
 Run from the repository root: python3 scripts/validate-framework.py
 """
 
@@ -119,9 +123,20 @@ def referenced_paths(markdown: str):
             yield token.rstrip("/")
 
 
+# Directories whose Markdown belongs to somebody else. Dependency trees carry
+# their own docs referencing their own paths, which say nothing about this
+# repository's documentation staying accurate.
+EXCLUDED_DIRS = (".git/", "vendor/", "node_modules/", "storage/", "frontend/.next/")
+
+
+def is_excluded(path: Path) -> bool:
+    posix = path.relative_to(REPO_ROOT).as_posix() if path.is_relative_to(REPO_ROOT) else path.as_posix()
+    return any(posix.startswith(d) or f"/{d}" in f"/{posix}" for d in EXCLUDED_DIRS)
+
+
 def check_documented_paths() -> None:
     for markdown_file in sorted(REPO_ROOT.rglob("*.md")):
-        if ".git/" in markdown_file.as_posix():
+        if is_excluded(markdown_file):
             continue
         for token in referenced_paths(markdown_file.read_text()):
             if not (REPO_ROOT / token).exists():
