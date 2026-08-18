@@ -1,0 +1,13 @@
+# Local Claude Code settings, which are per-developer and must not be shared
+.claude/settings.local.json
+
+# Editor and OS artefacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Incidental output
+*.log
+__pycache__/
